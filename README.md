@@ -1,5 +1,6 @@
 # FairLens
 Live Demo: https://fairlens-frontend-455157904994.us-central1.run.app/
+
 FairLens is an auditing platform for machine learning models. It provides a compliance layer designed to detect bias, measure severity, and generate remediation plans to ensure models meet regulatory and ethical standards before production deployment.
 
 ---
