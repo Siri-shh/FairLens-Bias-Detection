@@ -1,1 +1,0 @@
-{"job_id": "test-contract-001", "target_column": "income", "protected_attributes": ["sex", "race"], "positive_outcome_label": 1}

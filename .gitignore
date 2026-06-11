@@ -15,9 +15,12 @@
 # ── Internal team documents ───────────────────────────────────────────────────
 docs/prompts/
 docs/CONTRACT.md
+docs/artifacts/
+docs/person4_frontend_notes.md
 CONTRACT.md
 task.md
 bugs_found.md
+gcloud
 
 # ── Python ───────────────────────────────────────────────────────────────────
 venv/
