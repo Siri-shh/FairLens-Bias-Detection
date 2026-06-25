@@ -1,5 +1,7 @@
 # FairLens
 
+**Live Demo:** [https://fair-lens-bias-detection.vercel.app/](https://fair-lens-bias-detection.vercel.app/)
+
 FairLens is an auditing platform for machine learning models. It provides a compliance layer designed to detect bias, measure severity, and generate remediation plans to ensure models meet regulatory and ethical standards before production deployment.
 
 ---
@@ -115,7 +117,7 @@ FairLens is deployed as two services: **Backend on Render** and **Frontend on Ve
 | `SECRET_API_KEY` | Generate with: `python -c "import secrets; print(secrets.token_hex(32))"` |
 | `GEMINI_API_KEY` | Your Google AI Studio key |
 | `USE_LOCAL_STORAGE` | `true` |
-| `FRONTEND_URL` | `*` (update to your Vercel URL after deploying frontend) |
+| `FRONTEND_URL` | `https://fair-lens-bias-detection.vercel.app` |
 | `USE_MOCK_PIPELINE` | `false` |
 
 5. Deploy. Note the URL (e.g. `https://fairlens-api-se7y.onrender.com`)
@@ -135,7 +137,7 @@ FairLens is deployed as two services: **Backend on Render** and **Frontend on Ve
 | `NEXT_PUBLIC_API_KEY` | Must match `SECRET_API_KEY` from step 1 |
 | `NEXT_PUBLIC_USE_MOCK` | `false` |
 
-5. Deploy.
+5. Deploy. (Live at [https://fair-lens-bias-detection.vercel.app/](https://fair-lens-bias-detection.vercel.app/))
 
 > **Note:** The Render free tier spins down after 15 minutes of inactivity. The first request after idle may take 30–60 seconds to cold-start.
 
