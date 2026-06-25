@@ -162,6 +162,7 @@ app.include_router(worker.router,    prefix="",        tags=["internal"])  # Pha
 
 # --- Health check (used by Cloud Run to verify the container is alive) ---
 @app.get("/health", tags=["infra"])
+@app.head("/health", include_in_schema=False)
 async def health():
     use_local = os.getenv("USE_LOCAL_STORAGE", "true").lower() == "true"
     return {
