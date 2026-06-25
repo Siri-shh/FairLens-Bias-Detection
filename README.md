@@ -118,7 +118,7 @@ FairLens is deployed as two services: **Backend on Render** and **Frontend on Ve
 | `FRONTEND_URL` | `*` (update to your Vercel URL after deploying frontend) |
 | `USE_MOCK_PIPELINE` | `false` |
 
-5. Deploy. Note the URL (e.g. `https://fairlens-api.onrender.com`)
+5. Deploy. Note the URL (e.g. `https://fairlens-api-se7y.onrender.com`)
 
 ### 2. Deploy the Frontend (Vercel)
 
@@ -131,7 +131,7 @@ FairLens is deployed as two services: **Backend on Render** and **Frontend on Ve
 
 | Variable | Value |
 |---|---|
-| `NEXT_PUBLIC_API_URL` | `https://fairlens-api.onrender.com/api/v1` *(your Render backend URL)* |
+| `NEXT_PUBLIC_API_URL` | `https://fairlens-api-se7y.onrender.com/api/v1` *(your Render backend URL)* |
 | `NEXT_PUBLIC_API_KEY` | Must match `SECRET_API_KEY` from step 1 |
 | `NEXT_PUBLIC_USE_MOCK` | `false` |
 
