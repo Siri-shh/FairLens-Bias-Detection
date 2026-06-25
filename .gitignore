@@ -45,16 +45,19 @@ htmlcov/
 *.h5
 *.pt
 *.pth
-# Exception: demo models in test_data/ ARE committed (small, needed for demos)
-!test_data/*.pkl
-!test_data/*.onnx
+# Exception: demo models in test_data/ and backend/test_data/ ARE committed (small, needed for demos)
+!test_data/**/*.pkl
+!test_data/**/*.onnx
+!backend/test_data/dummy_data_fairlens/**/*.pkl
+!backend/test_data/dummy_data_fairlens/**/*.onnx
 
 # ── Local runtime storage (generated at runtime, never source code) ───────────
 backend/storage_local/
 storage_local/
 
 # ── Duplicated build files ───────────────────────────────────────────────────
-backend/test_data/
+backend/test_data/*
+!backend/test_data/dummy_data_fairlens/
 
 # ── Results and reports generated during development ─────────────────────────
 results_partial.json
