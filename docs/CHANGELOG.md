@@ -262,16 +262,13 @@ Fixed an `IndexError` where `KernelExplainer` results were incorrectly indexed a
 ### Backend (`backend/.env`)
 | Variable | Required | Description |
 |---|---|---|
-| `USE_LOCAL_STORAGE` | Yes | `true` = use local disk; `false` = use GCS |
-| `LOCAL_UPLOAD_DIR` | Local only | Path for uploaded files |
-| `LOCAL_RESULTS_DIR` | Local only | Path for analysis results |
+| `USE_LOCAL_STORAGE` | Yes | `true` = use local disk (default) |
+| `LOCAL_UPLOAD_DIR` | No | Path for uploaded files. Default: `./storage_local/uploads` |
+| `LOCAL_RESULTS_DIR` | No | Path for analysis results. Default: `./storage_local/results` |
 | `USE_MOCK_PIPELINE` | No | `true` = skip real analysis, use mock data |
 | `FRONTEND_URL` | Yes | CORS allowlist — your frontend domain |
 | `GEMINI_API_KEY` | Yes | Free key from https://aistudio.google.com/apikey |
 | `SECRET_API_KEY` | Yes | Shared secret for `X-API-Key` header auth |
-| `GCP_PROJECT_ID` | Production | Your GCP project ID |
-| `GCS_UPLOAD_BUCKET` | Production | GCS bucket for uploads |
-| `GCS_RESULTS_BUCKET` | Production | GCS bucket for results |
 
 ### Frontend (`frontend/.env.local`)
 | Variable | Description |
@@ -284,28 +281,9 @@ Fixed an `IndexError` where `KernelExplainer` results were incorrectly indexed a
 
 ## Deployment Reference
 
-### Cloud Run Production
-- **Service URL:** `https://fairlens-api-455157904994.us-central1.run.app`
-- **Project:** `project-0c33e365-3fc0-4d06-b0a`
-- **Region:** `us-central1`
-- **Current Revision:** `00021` (includes Aditya merge + Gemini fix + Security hardening)
+### Production Stack
+- **Backend:** Render (Docker web service, free tier)
+- **Frontend:** Vercel (Next.js, free tier)
 
-### Rebuild & Redeploy Commands
-```bash
-# Build
-gcloud builds submit \
-  --tag us-central1-docker.pkg.dev/project-0c33e365-3fc0-4d06-b0a/fairlens/fairlens-api \
-  backend/
+See the main [README.md](../README.md) for step-by-step deployment instructions.
 
-# Deploy
-gcloud run deploy fairlens-api \
-  --image us-central1-docker.pkg.dev/project-0c33e365-3fc0-4d06-b0a/fairlens/fairlens-api \
-  --region=us-central1 \
-  --project=project-0c33e365-3fc0-4d06-b0a \
-  --quiet
-
-# Update a single env var (no rebuild needed)
-gcloud run services update fairlens-api \
-  --update-env-vars KEY=VALUE \
-  --region=us-central1 --quiet
-```

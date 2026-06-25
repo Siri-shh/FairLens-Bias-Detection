@@ -285,11 +285,11 @@ export default function ResultsDashboard({ params }: { params: { job_id: string 
                   <div key={i} className="space-y-2 text-sm leading-relaxed">
                     <div className="flex gap-2">
                       <span className="font-bold text-fuchsia-600 dark:text-fuchsia-400 shrink-0">You:</span>
-                      <span className="text-amber-900/80 dark:text-amber-200/80">{qa.question}</span>
+                      <span className="text-neutral-800 dark:text-neutral-200">{qa.question}</span>
                     </div>
                     <div className="metric-border rounded-2xl p-4 flex gap-3">
                       <Sparkles className="h-4 w-4 shrink-0 text-fuchsia-600 dark:text-fuchsia-400 mt-0.5" />
-                      <span className="min-w-0 whitespace-pre-wrap break-words text-amber-900/80 dark:text-amber-200/80">{qa.answer}</span>
+                      <span className="min-w-0 whitespace-pre-wrap break-words text-neutral-800 dark:text-neutral-200">{qa.answer}</span>
                     </div>
                   </div>
                 ))}
@@ -305,13 +305,13 @@ export default function ResultsDashboard({ params }: { params: { job_id: string 
                 onKeyDown={(e) => { if (e.key === "Enter") handleAskQuestion(); }}
                 disabled={isAsking}
                 className="
-                  flex-1 rounded-2xl border border-amber-500/20 bg-amber-500/8
-                  px-4 py-3 text-sm text-amber-950 placeholder-amber-900/40
+                  flex-1 rounded-2xl border border-amber-500/20 bg-transparent
+                  px-4 py-3 text-sm text-neutral-900 placeholder-neutral-500
                   outline-none transition
                   focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/30
                   disabled:opacity-50
-                  dark:border-amber-400/20 dark:bg-amber-400/8 dark:text-amber-100
-                  dark:placeholder-amber-300/30 dark:focus:border-amber-400/50
+                  dark:border-amber-400/20 dark:bg-neutral-900/50 dark:text-neutral-100
+                  dark:placeholder-neutral-400 dark:focus:border-amber-400/50
                 "
               />
               <button

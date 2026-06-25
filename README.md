@@ -1,5 +1,4 @@
 # FairLens
-Live Demo: https://fairlens-frontend-455157904994.us-central1.run.app/
 
 FairLens is an auditing platform for machine learning models. It provides a compliance layer designed to detect bias, measure severity, and generate remediation plans to ensure models meet regulatory and ethical standards before production deployment.
 
@@ -52,8 +51,6 @@ graph TD
 
 ## Local Setup Instructions
 
-You do not need an active Google Cloud Platform (GCP) project to run FairLens locally.
-
 ### 1. Start the Backend (FastAPI)
 
 ```bash
@@ -99,30 +96,48 @@ The dashboard will be available at `http://localhost:3000`.
 
 ---
 
-## Production Deployment (Google Cloud Run)
+## Production Deployment
 
-FairLens is fully containerized and can be deployed to Google Cloud Run in seconds.
+FairLens is deployed as two services: **Backend on Render** and **Frontend on Vercel**.
 
-### 1. Deploy the Backend
-```bash
-cd backend
-gcloud run deploy fairlens-api --source . --region us-central1 --allow-unauthenticated
-```
-*Note: Make sure to set your `SECRET_API_KEY`, `GEMINI_API_KEY`, and `FRONTEND_URL` (set to `*` for testing or the exact frontend URL) via the Google Cloud Console or using `--set-env-vars`.*
+### 1. Deploy the Backend (Render)
 
-### 2. Deploy the Frontend
-Before deploying, create a `.env.production` file in the `frontend/` directory so Next.js can bake the environment variables into the production build:
-```env
-NEXT_PUBLIC_API_URL=https://<YOUR_BACKEND_URL>.run.app/api/v1
-NEXT_PUBLIC_API_KEY=<YOUR_SECRET_API_KEY>
-NEXT_PUBLIC_USE_MOCK=false
-```
+1. Go to [dashboard.render.com](https://dashboard.render.com) → **New Web Service**
+2. Connect your GitHub repo (`Siri-shh/FairLens-Bias-Detection`)
+3. Configure:
+   - **Root Directory**: `backend`
+   - **Runtime**: Docker
+   - **Plan**: Free
+4. Set environment variables in the Render dashboard:
 
-Then run the deployment command:
-```bash
-cd frontend
-gcloud run deploy fairlens-frontend --source . --region us-central1 --allow-unauthenticated
-```
+| Variable | Value |
+|---|---|
+| `SECRET_API_KEY` | Generate with: `python -c "import secrets; print(secrets.token_hex(32))"` |
+| `GEMINI_API_KEY` | Your Google AI Studio key |
+| `USE_LOCAL_STORAGE` | `true` |
+| `FRONTEND_URL` | `*` (update to your Vercel URL after deploying frontend) |
+| `USE_MOCK_PIPELINE` | `false` |
+
+5. Deploy. Note the URL (e.g. `https://fairlens-api.onrender.com`)
+
+### 2. Deploy the Frontend (Vercel)
+
+1. Go to [vercel.com](https://vercel.com) → **Add New Project**
+2. Import your GitHub repo (`Siri-shh/FairLens-Bias-Detection`)
+3. Configure:
+   - **Root Directory**: `frontend`
+   - **Framework**: Next.js (auto-detected)
+4. Set environment variables in the Vercel dashboard:
+
+| Variable | Value |
+|---|---|
+| `NEXT_PUBLIC_API_URL` | `https://fairlens-api.onrender.com/api/v1` *(your Render backend URL)* |
+| `NEXT_PUBLIC_API_KEY` | Must match `SECRET_API_KEY` from step 1 |
+| `NEXT_PUBLIC_USE_MOCK` | `false` |
+
+5. Deploy.
+
+> **Note:** The Render free tier spins down after 15 minutes of inactivity. The first request after idle may take 30–60 seconds to cold-start.
 
 ---
 
@@ -133,21 +148,12 @@ gcloud run deploy fairlens-frontend --source . --region us-central1 --allow-unau
 | Variable | Required | Description |
 |---|---|---|
 | `SECRET_API_KEY` | Yes | Shared secret for API authentication. Generate with: `python -c "import secrets; print(secrets.token_hex(32))"` |
-| `GEMINI_API_KEY` | Yes | Google AI Studio key |
-| `USE_LOCAL_STORAGE` | Yes | `true` = local disk (default); `false` = GCS |
-| `FRONTEND_URL` | Yes | Frontend domain for CORS |
+| `GEMINI_API_KEY` | Yes | Google AI Studio key ([get one here](https://aistudio.google.com/apikey)) |
+| `USE_LOCAL_STORAGE` | Yes | `true` = local disk (default) |
+| `FRONTEND_URL` | Yes | Frontend domain for CORS. Use `*` for development. |
 | `USE_MOCK_PIPELINE` | No | `true` = skip ML inference, use mock data |
-| `LOCAL_UPLOAD_DIR` | Local only | `./storage_local/uploads` |
-| `LOCAL_RESULTS_DIR` | Local only | `./storage_local/results` |
-| `GCP_PROJECT_ID` | Production | GCP project ID. Also enables Firestore job metadata. |
-| `GCS_UPLOAD_BUCKET` | Production | GCS bucket for uploads |
-| `GCS_RESULTS_BUCKET` | Production | GCS bucket for results |
-| `CLOUD_TASKS_QUEUE` | Production | Cloud Tasks queue name (e.g. `fairlens-jobs`). If unset, falls back to in-process execution. |
-| `CLOUD_TASKS_LOCATION` | Production | GCP region for the queue, e.g. `us-central1` |
-| `WORKER_URL` | Production | Full URL of the `/internal/run-job` endpoint on Cloud Run |
-| `INTERNAL_WORKER_SECRET` | Production | Shared secret to authenticate Cloud Tasks → worker calls |
-| `REDIS_URL` | Production | Redis connection string for result caching. If unset, falls back to in-memory cache. |
-| `CACHE_TTL_SECONDS` | Production | Cache entry lifetime in seconds. Default: `3600` (1 hour) |
+| `LOCAL_UPLOAD_DIR` | No | Default: `./storage_local/uploads` |
+| `LOCAL_RESULTS_DIR` | No | Default: `./storage_local/results` |
 
 ### Frontend (`frontend/.env.local`)
 
@@ -207,9 +213,6 @@ Files are validated before processing:
 ### CORS Policy
 Origins are restricted to the configured `FRONTEND_URL` environment variable.
 
-### Secrets Management
-In production, `GEMINI_API_KEY` and `SECRET_API_KEY` should be stored in Google Cloud Secret Manager.
-
 ---
 
 ## Testing
@@ -232,7 +235,7 @@ Test coverage includes Disparate Impact edge cases, perfect fairness baseline, a
 
 FairLens includes three pre-built scenarios for evaluation:
 
-1. Navigate to `http://localhost:3000`
+1. Navigate to the frontend URL
 2. Locate the "Try a pre-trained scenario" section
 3. Select COMPAS (Criminal Justice), German Credit, or HMDA (Mortgage Lending)
 4. Review the pipeline execution
@@ -246,9 +249,9 @@ FairLens includes three pre-built scenarios for evaluation:
 FairLens/
 ├── backend/
 │   ├── main.py                    # FastAPI application
+│   ├── Dockerfile                 # Production Docker container
 │   ├── requirements.txt           # Production dependencies
 │   ├── requirements-dev.txt       # Development dependencies
-│   ├── .env                       # Local configuration
 │   ├── routers/                   # Endpoint definitions
 │   ├── services/                  # Business logic and external integrations
 │   ├── ml/                        # Bias engine and ML remediation
@@ -257,7 +260,7 @@ FairLens/
 │   ├── app/                       # Next.js application routing and pages
 │   ├── components/                # Reusable UI components
 │   └── lib/                       # API clients and shared types
+├── render.yaml                    # Render deployment config (backend)
 └── docs/
     └── CHANGELOG.md               # Change history
 ```
-

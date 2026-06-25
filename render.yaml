@@ -1,0 +1,29 @@
+# ── render.yaml ─────────────────────────────────────────────────────────
+# Render Infrastructure-as-Code for FairLens backend.
+# Frontend is deployed separately on Vercel.
+#
+# To deploy: Connect this repo on https://dashboard.render.com
+# Render will auto-detect this file and create the service.
+# ────────────────────────────────────────────────────────────────────────
+
+services:
+  - type: web
+    name: fairlens-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    repo: https://github.com/Siri-shh/FairLens-Bias-Detection
+    branch: main
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: USE_LOCAL_STORAGE
+        value: "true"
+      - key: USE_MOCK_PIPELINE
+        value: "false"
+      - key: GEMINI_API_KEY
+        sync: false          # set manually in Render dashboard
+      - key: SECRET_API_KEY
+        sync: false          # set manually in Render dashboard
+      - key: FRONTEND_URL
+        value: "*"            # update after Vercel deploy

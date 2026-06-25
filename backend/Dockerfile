@@ -1,6 +1,7 @@
-# ── FairLens API — Cloud Run Container ──
-# Build: gcloud builds submit --tag gcr.io/$PROJECT_ID/fairlens-api .
-# Deploy: gcloud run deploy fairlens-api --image gcr.io/$PROJECT_ID/fairlens-api ...
+# ── FairLens API — Docker Container ──
+# Works on Render, Railway, or any Docker-based host.
+# Build:  docker build -t fairlens-api .
+# Run:    docker run -p 8000:8000 fairlens-api
 
 FROM python:3.12-slim
 
@@ -28,14 +29,18 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY . .
 
-# Cloud Run injects the PORT env var (default 8080)
-# USE_LOCAL_STORAGE=false → all I/O goes to GCS, not local disk
-# USE_MOCK_PIPELINE=false → run the real bias engine, not mock data
-ENV PORT=8080
-ENV USE_LOCAL_STORAGE=false
+# Ensure local storage directories exist
+RUN mkdir -p ./storage_local/uploads ./storage_local/results
+
+# Local storage mode (no GCS/Firestore/Cloud Tasks needed)
+ENV USE_LOCAL_STORAGE=true
 ENV USE_MOCK_PIPELINE=false
 
-# Run with uvicorn — Cloud Run sends SIGTERM for graceful shutdown
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"]
+# PORT is injected by hosting platforms (Render, Railway, etc.)
+# Default to 8000 for local development
+ENV PORT=8000
 
-EXPOSE 8080
+# Use shell form so $PORT is expanded at runtime
+CMD uvicorn main:app --host 0.0.0.0 --port $PORT
+
+EXPOSE 8000
