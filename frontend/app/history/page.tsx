@@ -8,6 +8,7 @@ import {
   Tooltip, ResponsiveContainer,
 } from "recharts";
 import { API_BASE } from "@/lib/api";
+import { getRecentJobs } from "@/lib/recentJobs";
 
 type HistoryItem = {
   job_id: string;
@@ -45,8 +46,8 @@ function ScoreRing({ score }: { score: number }) {
       </div>
       <div className="mt-1 h-1.5 w-20 rounded-full bg-amber-500/10 dark:bg-amber-400/10">
         <div
-          className="h-1.5 rounded-full transition-all"
-          style={{ width: `${score}%`, backgroundColor: color }}
+            className="h-1.5 rounded-full transition-all"
+            style={{ width: `${score}%`, backgroundColor: color }}
         />
       </div>
       <div className="mt-1 text-xs text-amber-900/45 dark:text-amber-300/45">FairLens Score</div>
@@ -60,8 +61,17 @@ export default function HistoryPage() {
 
   useEffect(() => {
     async function fetchHistory() {
+      const localJobs = getRecentJobs();
+      if (localJobs.length === 0) {
+        setHistory([]);
+        setLoading(false);
+        return;
+      }
+
+      const jobIds = localJobs.map((job) => job.job_id).join(",");
+
       try {
-        const res = await fetch(`${API_BASE}/history`, {
+        const res = await fetch(`${API_BASE}/history?job_ids=${encodeURIComponent(jobIds)}`, {
           headers: (process.env.NEXT_PUBLIC_API_KEY ? { "X-API-Key": process.env.NEXT_PUBLIC_API_KEY } : {}) as Record<string, string>
         });
         if (!res.ok) throw new Error("Failed to fetch history");

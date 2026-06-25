@@ -14,15 +14,28 @@ logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
+from typing import Optional
+
 @router.get("/history", dependencies=[Depends(require_api_key)])
-async def get_history():
-    """Returns all completed jobs, newest first."""
+async def get_history(job_ids: Optional[str] = None):
+    """Returns completed jobs matching the provided job_ids list, newest first."""
+
+    # Parse target IDs from query parameter
+    target_ids = set()
+    if job_ids:
+        target_ids = {jid.strip() for jid in job_ids.split(",") if jid.strip()}
+    else:
+        # Return empty list by default to ensure privacy of other users' audits
+        return []
 
     # ── Firestore path (Phase 2.2) ────────────────────────────────────────────
     try:
         from services.db import db_list_jobs
         db_jobs = db_list_jobs(limit=50)
         if db_jobs:
+            # Filter to target IDs
+            db_jobs = [job for job in db_jobs if job.get("job_id") in target_ids]
+            
             # Enrich with results data if available in local storage
             summaries = []
             for job in db_jobs:
@@ -56,11 +69,10 @@ async def get_history():
     except Exception as e:
         logger.warning(f"Firestore history query failed, falling back to disk: {e}")
 
-    # ── Local JSON fallback (original behaviour) ──────────────────────────────
-    jobs = storage.list_jobs(bucket="results")
+    # ── Local JSON fallback (original behaviour, direct lookup) ───────────────
     summaries = []
 
-    for job_id in jobs:
+    for job_id in target_ids:
         try:
             if not storage.file_exists(job_id, "results.json", bucket="results"):
                 continue
