@@ -30,6 +30,18 @@ load_dotenv()
 # Add ml/ to sys.path so bias engine modules can import each other
 sys.path.insert(0, str(Path(__file__).parent / "ml"))
 
+# ── Unpickling compatibility fix ─────────────────────────────────────────────
+# Scikit-learn models pickled in older versions may refer to the Cython C-extension
+# module as a top-level '_loss' module. We map it to the actual path in sys.modules
+# to prevent ModuleNotFoundError during joblib.load/pickle.load.
+try:
+    import sklearn.ensemble  # Force scikit-learn internal module registration
+    import sklearn._loss._loss as sklearn_loss
+    sys.modules['_loss'] = sklearn_loss
+except Exception:
+    pass
+
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
